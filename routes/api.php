@@ -9,11 +9,56 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
+
+    // LOGOUT SEMUA ROLE
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::get('/user', function (Request $request) {
-        return $request->user();
+    // 👤 USER AREA
+    Route::middleware('role:user')->group(function () {
+
+        // GET /api/user
+        Route::get('/user', function (Request $request) {
+            return response()->json([
+                'message' => 'Welcome User',
+                'user' => $request->user()
+            ]);
+        });
+
+        // 🧍‍♂️ GET /api/user/profile
+        Route::get('/user/profile', function (Request $request) {
+            return response()->json([
+                'message' => 'User Profile Data',
+                'profile' => $request->user()
+            ]);
+        });
     });
+
+    // 👑 ADMIN AREA
+    Route::middleware('role:admin')->group(function () {
+
+        // GET /api/admin
+        Route::get('/admin', function (Request $request) {
+            return response()->json([
+                'message' => 'Welcome Admin',
+                'admin' => $request->user()
+            ]);
+        });
+
+        // 🧭 GET /api/admin/dashboard
+        Route::get('/admin/dashboard', function (Request $request) {
+            // Contoh data dashboard — nanti bisa kamu ubah ambil dari DB
+            return response()->json([
+                'message' => 'Admin Dashboard Overview',
+                'stats' => [
+                    'total_users' => \App\Models\User::count(),
+                    'total_admins' => \App\Models\User::where('role', 'admin')->count(),
+                    'total_regular_users' => \App\Models\User::where('role', 'user')->count(),
+                ],
+                'admin' => $request->user()
+            ]);
+        });
+    });
+
 });
 
 Route::get('/test', function () {
