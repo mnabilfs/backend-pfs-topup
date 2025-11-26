@@ -3,10 +3,24 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-
+use App\Http\Controllers\GameController;
+use App\Http\Controllers\ProductController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+// ✅ PUBLIC ROUTES - UNTUK TESTING (pindahkan ke sini sementara)
+Route::get('/games', [GameController::class, 'index']);
+Route::get('/games/{id}', [GameController::class, 'show']);
+Route::post('/games', [GameController::class, 'store']);        // ← TAMBAHKAN INI
+Route::put('/games/{id}', [GameController::class, 'update']);    // ← TAMBAHKAN INI
+Route::delete('/games/{id}', [GameController::class, 'destroy']); // ← TAMBAHKAN INI
+
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/{id}', [ProductController::class, 'show']);
+Route::post('/products', [ProductController::class, 'store']);     // ← TAMBAHKAN INI
+Route::put('/products/{id}', [ProductController::class, 'update']); // ← TAMBAHKAN INI
+Route::delete('/products/{id}', [ProductController::class, 'destroy']); // ← TAMBAHKAN INI
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -58,7 +72,6 @@ Route::middleware('auth:sanctum')->group(function () {
             ]);
         });
     });
-
 });
 
 Route::get('/test', function () {
