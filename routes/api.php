@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\BannerController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -21,6 +22,12 @@ Route::get('/products/{id}', [ProductController::class, 'show']);
 Route::post('/products', [ProductController::class, 'store']);     // ← TAMBAHKAN INI
 Route::put('/products/{id}', [ProductController::class, 'update']); // ← TAMBAHKAN INI
 Route::delete('/products/{id}', [ProductController::class, 'destroy']); // ← TAMBAHKAN INI
+
+Route::get('/banners', [BannerController::class, 'index']); // untuk Home
+Route::get('/banners/all', [BannerController::class, 'all']); // untuk Dashboard
+Route::post('/banners', [BannerController::class, 'store']);
+Route::put('/banners/{id}', [BannerController::class, 'update']);
+Route::delete('/banners/{id}', [BannerController::class, 'destroy']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
