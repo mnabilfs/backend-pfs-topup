@@ -10,24 +10,12 @@ use App\Http\Controllers\BannerController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-// ✅ PUBLIC ROUTES - UNTUK TESTING (pindahkan ke sini sementara)
+// Public routes untuk user biasa
 Route::get('/games', [GameController::class, 'index']);
 Route::get('/games/{id}', [GameController::class, 'show']);
-Route::post('/games', [GameController::class, 'store']);        // ← TAMBAHKAN INI
-Route::put('/games/{id}', [GameController::class, 'update']);    // ← TAMBAHKAN INI
-Route::delete('/games/{id}', [GameController::class, 'destroy']); // ← TAMBAHKAN INI
-
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
-Route::post('/products', [ProductController::class, 'store']);     // ← TAMBAHKAN INI
-Route::put('/products/{id}', [ProductController::class, 'update']); // ← TAMBAHKAN INI
-Route::delete('/products/{id}', [ProductController::class, 'destroy']); // ← TAMBAHKAN INI
-
-Route::get('/banners', [BannerController::class, 'index']); // untuk Home
-Route::get('/banners/all', [BannerController::class, 'all']); // untuk Dashboard
-Route::post('/banners', [BannerController::class, 'store']);
-Route::put('/banners/{id}', [BannerController::class, 'update']);
-Route::delete('/banners/{id}', [BannerController::class, 'destroy']);
+Route::get('/banners', [BannerController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -78,6 +66,22 @@ Route::middleware('auth:sanctum')->group(function () {
                 'admin' => $request->user()
             ]);
         });
+
+        // 🎮 GAMES MANAGEMENT (Admin Only)
+        Route::post('/games', [GameController::class, 'store']);
+        Route::put('/games/{id}', [GameController::class, 'update']);
+        Route::delete('/games/{id}', [GameController::class, 'destroy']);
+
+        // 💎 PRODUCTS MANAGEMENT (Admin Only)
+        Route::post('/products', [ProductController::class, 'store']);
+        Route::put('/products/{id}', [ProductController::class, 'update']);
+        Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+
+        // 🎨 BANNERS MANAGEMENT (Admin Only)
+        Route::get('/banners/all', [BannerController::class, 'all']);
+        Route::post('/banners', [BannerController::class, 'store']);
+        Route::put('/banners/{id}', [BannerController::class, 'update']);
+        Route::delete('/banners/{id}', [BannerController::class, 'destroy']);
     });
 });
 
