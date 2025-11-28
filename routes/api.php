@@ -3,21 +3,48 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\BannerController;
+use Illuminate\Support\Facades\Log;
+
+
+Route::post('/test-upload', function (Request $request) {
+    // Log file info
+    Log::info('Files received:', $request->allFiles());
+
+    if ($request->hasFile('avatar')) {
+        $file = $request->file('avatar');
+        $path = $file->store('avatars', 'public');
+        return response()->json([
+            'success' => true,
+            'filename' => $file->getClientOriginalName(),
+            'path' => asset('storage/' . $path),
+            'size' => $file->getSize(),
+            'type' => $file->getMimeType(),
+        ]);
+    }
+
+    return response()->json([
+        'success' => false,
+        'message' => 'No file received',
+        'allFiles' => $request->allFiles(),
+    ]);
+});
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-// Public routes untuk user biasa
 Route::get('/games', [GameController::class, 'index']);
 Route::get('/games/{id}', [GameController::class, 'show']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
-Route::get('/banners', [BannerController::class, 'index']);
+Route::get('/banners', [BannerController::class, 'index']); // untuk Home
 
 Route::middleware('auth:sanctum')->group(function () {
+
+    Route::post('/user/profile/update', [ProfileController::class, 'update']);
 
     // LOGOUT SEMUA ROLE
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -66,19 +93,19 @@ Route::middleware('auth:sanctum')->group(function () {
                 'admin' => $request->user()
             ]);
         });
+        // ✅ PUBLIC ROUTES - UNTUK TESTING (pindahkan ke sini sementara)
 
-        // 🎮 GAMES MANAGEMENT (Admin Only)
-        Route::post('/games', [GameController::class, 'store']);
-        Route::put('/games/{id}', [GameController::class, 'update']);
-        Route::delete('/games/{id}', [GameController::class, 'destroy']);
+        Route::post('/games', [GameController::class, 'store']);        // ← TAMBAHKAN INI
+        Route::put('/games/{id}', [GameController::class, 'update']);    // ← TAMBAHKAN INI
+        Route::delete('/games/{id}', [GameController::class, 'destroy']); // ← TAMBAHKAN INI
 
-        // 💎 PRODUCTS MANAGEMENT (Admin Only)
-        Route::post('/products', [ProductController::class, 'store']);
-        Route::put('/products/{id}', [ProductController::class, 'update']);
-        Route::delete('/products/{id}', [ProductController::class, 'destroy']);
 
-        // 🎨 BANNERS MANAGEMENT (Admin Only)
-        Route::get('/banners/all', [BannerController::class, 'all']);
+        Route::post('/products', [ProductController::class, 'store']);     // ← TAMBAHKAN INI
+        Route::put('/products/{id}', [ProductController::class, 'update']); // ← TAMBAHKAN INI
+        Route::delete('/products/{id}', [ProductController::class, 'destroy']); // ← TAMBAHKAN INI
+
+
+        Route::get('/banners/all', [BannerController::class, 'all']); // untuk Dashboard
         Route::post('/banners', [BannerController::class, 'store']);
         Route::put('/banners/{id}', [BannerController::class, 'update']);
         Route::delete('/banners/{id}', [BannerController::class, 'destroy']);
