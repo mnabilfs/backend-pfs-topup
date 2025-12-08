@@ -7,7 +7,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\BannerController;
+use App\Http\Controllers\BackgroundMusicController;
 use Illuminate\Support\Facades\Log;
+
 
 
 Route::post('/test-upload', function (Request $request) {
@@ -41,6 +43,7 @@ Route::get('/games/{id}', [GameController::class, 'show']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
 Route::get('/banners', [BannerController::class, 'index']); // untuk Home
+Route::get('/background-music/active', [BackgroundMusicController::class, 'getActive']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -109,6 +112,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/banners', [BannerController::class, 'store']);
         Route::put('/banners/{id}', [BannerController::class, 'update']);
         Route::delete('/banners/{id}', [BannerController::class, 'destroy']);
+
+        // Background Music Management
+        Route::get('/background-music', [BackgroundMusicController::class, 'index']);
+        Route::post('/background-music', [BackgroundMusicController::class, 'store']);
+        Route::put('/background-music/{id}', [BackgroundMusicController::class, 'update']);
+        Route::delete('/background-music/{id}', [BackgroundMusicController::class, 'destroy']);
+        Route::post('/background-music/{id}/activate', [BackgroundMusicController::class, 'setActive']);
     });
 });
 
