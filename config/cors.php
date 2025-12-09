@@ -1,12 +1,36 @@
 <?php
 
 return [
-    'paths' => ['api/*', 'sanctum/csrf-cookie'], //tambahan buat dashbord
-    'allowed_methods' => ['*'],                     // tambahan buat dashbord
-    'allowed_origins' => ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000', 'http://127.0.0.1:3000'],
-    'allowed_origins_patterns' => [], //tambahan buat dashbord
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cross-Origin Resource Sharing (CORS) Configuration
+    |--------------------------------------------------------------------------
+    */
+
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+
+    'allowed_methods' => ['*'],
+
+    'allowed_origins' => [
+        // Local development
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'http://127.0.0.1:5173',
+        'http://127.0.0.1:3000',
+
+        // PRODUCTION - VERCEL (WAJIB ADA INI!)
+        'https://frontend-pfs-topup.vercel.app',
+    ],
+
+    'allowed_origins_patterns' => [],
+
     'allowed_headers' => ['*'],
-    'exposed_headers' => [],//tambahan buat dashbord
-    'max_age' => 0,//tambahan buat dashbord
+
+    'exposed_headers' => [],
+
+    'max_age' => 0,
+
     'supports_credentials' => true,
+
 ];
