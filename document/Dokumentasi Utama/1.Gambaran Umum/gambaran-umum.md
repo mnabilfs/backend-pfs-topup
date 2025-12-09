@@ -1,5 +1,5 @@
 ## Daftar Isi
-1. [Gambaran Umum](#gambaran-umum)
+1. [Gambaran Umum](#gambaran-umum.md)
 
 ## Gambaran Umum
 

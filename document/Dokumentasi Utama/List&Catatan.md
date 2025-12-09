@@ -1,5 +1,5 @@
 ## Daftar Isi
-1. [Gambaran Umum](#gambaran-umum)
+1. [Gambaran Umum](#gambaran-umum.md)
 2. [Teknologi yang Digunakan](#teknologi-yang-digunakan)
 3. [Struktur Database](#struktur-database)
 4. [Fitur Utama](#fitur-utama)
