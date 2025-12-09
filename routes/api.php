@@ -7,13 +7,11 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\BannerController;
+use App\Http\Controllers\SoldAccountController;
 use App\Http\Controllers\BackgroundMusicController;
 use Illuminate\Support\Facades\Log;
 
-
-
 Route::post('/test-upload', function (Request $request) {
-    // Log file info
     Log::info('Files received:', $request->allFiles());
 
     if ($request->hasFile('avatar')) {
@@ -35,27 +33,42 @@ Route::post('/test-upload', function (Request $request) {
     ]);
 });
 
+// ============================================
+// PUBLIC ROUTES (No Authentication Required)
+// ============================================
+
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/games', [GameController::class, 'index']);
 Route::get('/games/{id}', [GameController::class, 'show']);
+
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
-Route::get('/banners', [BannerController::class, 'index']); // untuk Home
+
+Route::get('/banners', [BannerController::class, 'index']);
+
 Route::get('/background-music/active', [BackgroundMusicController::class, 'getActive']);
+
+// 🔥 FIX: Public sold accounts routes
+Route::get('/sold-accounts', [SoldAccountController::class, 'index']);
+Route::get('/sold-accounts/{id}', [SoldAccountController::class, 'show']);
+
+Route::get('/test', function () {
+    return response()->json(['message' => 'API is working']);
+});
+
+// ============================================
+// PROTECTED ROUTES (Authentication Required)
+// ============================================
 
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/user/profile/update', [ProfileController::class, 'update']);
-
-    // LOGOUT SEMUA ROLE
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // 👤 USER AREA
+    // USER ROUTES
     Route::middleware('role:user')->group(function () {
-
-        // GET /api/user
         Route::get('/user', function (Request $request) {
             return response()->json([
                 'message' => 'Welcome User',
@@ -63,7 +76,6 @@ Route::middleware('auth:sanctum')->group(function () {
             ]);
         });
 
-        // 🧍‍♂️ GET /api/user/profile
         Route::get('/user/profile', function (Request $request) {
             return response()->json([
                 'message' => 'User Profile Data',
@@ -72,10 +84,9 @@ Route::middleware('auth:sanctum')->group(function () {
         });
     });
 
-    // 👑 ADMIN AREA
+    // ADMIN ROUTES
     Route::middleware('role:admin')->group(function () {
 
-        // GET /api/admin
         Route::get('/admin', function (Request $request) {
             return response()->json([
                 'message' => 'Welcome Admin',
@@ -83,9 +94,7 @@ Route::middleware('auth:sanctum')->group(function () {
             ]);
         });
 
-        // 🧭 GET /api/admin/dashboard
         Route::get('/admin/dashboard', function (Request $request) {
-            // Contoh data dashboard — nanti bisa kamu ubah ambil dari DB
             return response()->json([
                 'message' => 'Admin Dashboard Overview',
                 'stats' => [
@@ -96,32 +105,33 @@ Route::middleware('auth:sanctum')->group(function () {
                 'admin' => $request->user()
             ]);
         });
-        // ✅ PUBLIC ROUTES - UNTUK TESTING (pindahkan ke sini sementara)
 
-        Route::post('/games', [GameController::class, 'store']);        // ← TAMBAHKAN INI
-        Route::put('/games/{id}', [GameController::class, 'update']);    // ← TAMBAHKAN INI
-        Route::delete('/games/{id}', [GameController::class, 'destroy']); // ← TAMBAHKAN INI
+        // GAMES MANAGEMENT
+        Route::post('/games', [GameController::class, 'store']);
+        Route::put('/games/{id}', [GameController::class, 'update']);
+        Route::delete('/games/{id}', [GameController::class, 'destroy']);
 
+        // PRODUCTS MANAGEMENT
+        Route::post('/products', [ProductController::class, 'store']);
+        Route::put('/products/{id}', [ProductController::class, 'update']);
+        Route::delete('/products/{id}', [ProductController::class, 'destroy']);
 
-        Route::post('/products', [ProductController::class, 'store']);     // ← TAMBAHKAN INI
-        Route::put('/products/{id}', [ProductController::class, 'update']); // ← TAMBAHKAN INI
-        Route::delete('/products/{id}', [ProductController::class, 'destroy']); // ← TAMBAHKAN INI
-
-
-        Route::get('/banners/all', [BannerController::class, 'all']); // untuk Dashboard
+        // BANNERS MANAGEMENT
+        Route::get('/banners/all', [BannerController::class, 'all']);
         Route::post('/banners', [BannerController::class, 'store']);
         Route::put('/banners/{id}', [BannerController::class, 'update']);
         Route::delete('/banners/{id}', [BannerController::class, 'destroy']);
 
-        // Background Music Management
+        // BACKGROUND MUSIC MANAGEMENT
         Route::get('/background-music', [BackgroundMusicController::class, 'index']);
         Route::post('/background-music', [BackgroundMusicController::class, 'store']);
         Route::put('/background-music/{id}', [BackgroundMusicController::class, 'update']);
         Route::delete('/background-music/{id}', [BackgroundMusicController::class, 'destroy']);
         Route::post('/background-music/{id}/activate', [BackgroundMusicController::class, 'setActive']);
-    });
-});
 
-Route::get('/test', function () {
-    return response()->json(['message' => 'API is working']);
+        // SOLD ACCOUNTS MANAGEMENT
+        Route::post('/sold-accounts', [SoldAccountController::class, 'store']);
+        Route::put('/sold-accounts/{id}', [SoldAccountController::class, 'update']);
+        Route::delete('/sold-accounts/{id}', [SoldAccountController::class, 'destroy']);
+    });
 });
