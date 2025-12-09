@@ -15,8 +15,7 @@ cmds = [
 [phases.deploy]
 cmds = [
   'php artisan storage:link || true',
-  'php artisan session:table || true',
-  'php artisan migrate:fresh --force --no-interaction',  # 👈 Ubah jadi migrate:fresh
+  'php artisan migrate --force --no-interaction',  # Ini saja yang benar & aman
   'php artisan config:cache',
   'php artisan route:cache'
 ]
