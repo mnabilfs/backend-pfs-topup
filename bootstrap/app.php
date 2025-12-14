@@ -12,7 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->statefulApi(); // aktifkan middleware bawaan Sanctum untuk SPA / API
+        // $middleware->statefulApi(); // nonaktifkan, karena memakai bearer token
 
         // alias middleware custom
         $middleware->alias([
