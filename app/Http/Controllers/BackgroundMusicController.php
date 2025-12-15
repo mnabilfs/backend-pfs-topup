@@ -12,7 +12,10 @@ class BackgroundMusicController extends Controller
     // GET semua musik (untuk admin)
     public function index()
     {
-        $musics = BackgroundMusic::ordered()->get();
+        $musics = BackgroundMusic::ordered()->get()->map(function ($music) {
+            $music->audio_url = asset('storage/' . $music->audio_url);
+            return $music;
+        });
         return response()->json($musics);
     }
 
@@ -20,6 +23,11 @@ class BackgroundMusicController extends Controller
     public function getActive()
     {
         $music = BackgroundMusic::active()->ordered()->first();
+
+        if ($music) {
+            $music->audio_url = asset('storage/' . $music->audio_url);
+        }
+
         return response()->json($music);
     }
 
@@ -48,7 +56,7 @@ class BackgroundMusicController extends Controller
             $music = BackgroundMusic::create([
                 'title' => $validated['title'],
                 'artist' => $validated['artist'] ?? null,
-                'audio_url' => asset('storage/' . $path),
+                'audio_url' => $path,
                 'is_active' => $request->boolean('is_active'),
                 'order' => BackgroundMusic::max('order') + 1,
             ]);
