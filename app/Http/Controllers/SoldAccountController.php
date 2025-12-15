@@ -32,8 +32,8 @@ class SoldAccountController extends Controller
                 $accounts = SoldAccount::orderBy('order')->get();
             } else {
                 $accounts = SoldAccount::where('is_active', true)
-                                      ->orderBy('order')
-                                      ->get();
+                    ->orderBy('order')
+                    ->get();
             }
             return response()->json($accounts);
         } catch (\Exception $e) {
@@ -53,28 +53,16 @@ class SoldAccountController extends Controller
                 'title'       => 'required|string|max:255',
                 'description' => 'nullable|string',
                 'price'       => 'required|integer|min:0',
-                'image'       => 'required|image|mimes:jpg,jpeg,png|max:5120', // max 5MB
+                'image'       => 'required|string',
                 'gallery'     => 'nullable|array',
-                'gallery.*'   => 'image|mimes:jpg,jpeg,png|max:5120',
+                'gallery.*'   => 'nullable|string',
                 'order'       => 'nullable|integer',
                 'is_active'   => 'nullable|boolean',
             ]);
 
             // Upload gambar utama
-            $mainFile = $request->file('image');
-            $mainFilename = time() . '_main_' . uniqid() . '.' . $mainFile->getClientOriginalExtension();
-            $mainPath = $mainFile->storeAs('sold_accounts', $mainFilename, 'public');
-            $imageUrl = asset('storage/' . $mainPath);
-
-            // Upload gallery (multiple)
-            $galleryUrls = [];
-            if ($request->hasFile('gallery')) {
-                foreach ($request->file('gallery') as $file) {
-                    $filename = time() . '_detail_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                    $path = $file->storeAs('sold_accounts', $filename, 'public');
-                    $galleryUrls[] = asset('storage/' . $path);
-                }
-            }
+            $imageUrl = $request->image_url; // langsung pakai dari request
+            $galleryUrls = $request->gallery ?? []; // langsung pakai array dari request
 
             $account = SoldAccount::create([
                 'title'       => $request->title,
@@ -120,40 +108,22 @@ class SoldAccountController extends Controller
                 'title'       => 'sometimes|required|string|max:255',
                 'description' => 'nullable|string',
                 'price'       => 'sometimes|required|integer|min:0',
-                'image'       => 'sometimes|image|mimes:jpg,jpeg,png|max:5120',
+                'image'       => 'sometimes|string',
                 'gallery'     => 'nullable|array',
-                'gallery.*'   => 'image|mimes:jpg,jpeg,png|max:5120',
+                'gallery.*'   => 'nullable|string',
                 'order'       => 'nullable|integer',
                 'is_active'   => 'nullable|boolean',
             ]);
 
             // Update gambar utama jika ada file baru
-            if ($request->hasFile('image')) {
-                if ($account->image_url) {
-                    $oldMain = str_replace(asset('storage/'), '', $account->image_url);
-                    Storage::disk('public')->delete($oldMain);
-                }
-                $mainFile = $request->file('image');
-                $mainFilename = time() . '_main_' . uniqid() . '.' . $mainFile->getClientOriginalExtension();
-                $mainPath = $mainFile->storeAs('sold_accounts', $mainFilename, 'public');
-                $account->image_url = asset('storage/' . $mainPath);
+            // Update gambar utama jika ada
+            if ($request->filled('image_url')) {
+                $account->image_url = $request->image_url;
             }
 
             // Update gallery jika ada file baru (timpa semua)
-            if ($request->hasFile('gallery')) {
-                if ($account->gallery) {
-                    foreach ($account->gallery as $oldUrl) {
-                        $oldPath = str_replace(asset('storage/'), '', $oldUrl);
-                        Storage::disk('public')->delete($oldPath);
-                    }
-                }
-                $galleryUrls = [];
-                foreach ($request->file('gallery') as $file) {
-                    $filename = time() . '_detail_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                    $path = $file->storeAs('sold_accounts', $filename, 'public');
-                    $galleryUrls[] = asset('storage/' . $path);
-                }
-                $account->gallery = $galleryUrls;
+            if ($request->has('gallery')) {
+                $account->gallery = $request->gallery ?? [];
             }
 
             // Update field teks lain
