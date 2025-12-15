@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('payment_methods', function (Blueprint $table) {
             $table->id();
             $table->string('name'); // QRIS, DANA, GoPay, dll
-            $table->string('image_url'); // Logo payment
+            $table->longText('image_url'); // Logo payment
             $table->integer('order')->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
