@@ -9,6 +9,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\SoldAccountController;
 use App\Http\Controllers\BackgroundMusicController;
+use App\Http\Controllers\PaymentMethodController;
 use Illuminate\Support\Facades\Log;
 
 Route::post('/test-upload', function (Request $request) {
@@ -42,6 +43,8 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/games', [GameController::class, 'index']);
 Route::get('/games/{id}', [GameController::class, 'show']);
+
+Route::get('/payment-methods/active', [PaymentMethodController::class, 'getActive']);
 
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
@@ -133,5 +136,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/sold-accounts', [SoldAccountController::class, 'store']);
         Route::put('/sold-accounts/{id}', [SoldAccountController::class, 'update']);
         Route::delete('/sold-accounts/{id}', [SoldAccountController::class, 'destroy']);
+
+        // PAYMENT METHODS MANAGEMENT
+        Route::get('/payment-methods', [PaymentMethodController::class, 'index']);
+        Route::post('/payment-methods', [PaymentMethodController::class, 'store']);
+        Route::put('/payment-methods/{id}', [PaymentMethodController::class, 'update']);
+        Route::delete('/payment-methods/{id}', [PaymentMethodController::class, 'destroy']);
     });
 });
