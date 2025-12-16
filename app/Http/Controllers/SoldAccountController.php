@@ -28,7 +28,7 @@ class SoldAccountController extends Controller
     public function index()
     {
         try {
-            if (auth('sanctum')->check() && auth('sanctum')->user()->role === 'admin') {
+            if (auth('api')->check() && auth('api')->user()->role === 'admin') { // UBAH INI
                 $accounts = SoldAccount::orderBy('order')->get();
             } else {
                 $accounts = SoldAccount::where('is_active', true)

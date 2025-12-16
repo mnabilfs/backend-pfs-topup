@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
@@ -18,22 +18,23 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|unique:users',
             'password' => 'required|string|min:6',
-            'role' => 'in:user,admin' // tambahkan validasi role
+            'role' => 'in:user,admin'
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role ?? 'user', // default user
+            'role' => $request->role ?? 'user',
         ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = JWTAuth::fromUser($user);
 
         return response()->json([
             'message' => 'User registered successfully',
             'access_token' => $token,
             'token_type' => 'Bearer',
+            'expires_in' => config('jwt.ttl') * 60,
             'user' => $user,
         ]);
     }
@@ -46,69 +47,93 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (!Auth::attempt($credentials)) {
+        $token = Auth::guard('api')->attempt($credentials);
+
+        if (!$token) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
-
-        $user = Auth::user();
-        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'message' => 'Login successful',
             'access_token' => $token,
             'token_type' => 'Bearer',
+            'expires_in' => config('jwt.ttl') * 60,
+            'user' => Auth::guard('api')->user()
+        ]);
+    }
+
+    // 🔹 UPDATE PROFILE
+    public function updateProfile(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::guard('api')->user();
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:50',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|min:6',
+            'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+
+        if ($request->password) {
+            $user->password = Hash::make($request->password);
+        }
+
+        if ($request->hasFile('avatar')) {
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $user->avatar = '/storage/' . $path;
+        }
+
+        $user->save();
+
+        return response()->json([
+            'message' => 'Profile updated successfully',
             'user' => $user
         ]);
     }
 
-    public function updateProfile(Request $request)
-{
-    $user = $request->user();
-
-    $validator = Validator::make($request->all(), [
-        'name' => 'required|string|max:50',
-        'email' => 'required|email|unique:users,email,' . $user->id,
-        'password' => 'nullable|min:6',
-        'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json([
-            'message' => 'Validation error',
-            'errors' => $validator->errors()
-        ], 422);
-    }
-
-    // Update Name & Email
-    $user->name = $request->name;
-    $user->email = $request->email;
-
-    // Update Password jika diisi
-    if ($request->password) {
-        $user->password = Hash::make($request->password);
-    }
-
-    // Update Avatar (jika ada)
-    if ($request->hasFile('avatar')) {
-        $path = $request->file('avatar')->store('avatars', 'public');
-        $user->avatar = '/storage/' . $path;
-    }
-
-    $user->save();
-
-    return response()->json([
-        'message' => 'Profile updated successfully',
-        'user' => $user
-    ]);
-}
-
     // 🔹 LOGOUT
-    public function logout(Request $request)
+    public function logout()
     {
-        $request->user()->currentAccessToken()->delete();
+        Auth::guard('api')->logout();
 
         return response()->json([
-        'message' => 'Logout successful'
-    ]);
+            'message' => 'Logout successful'
+        ]);
+    }
+
+    // 🔹 REFRESH TOKEN
+    public function refresh()
+    {
+        try {
+            $newToken = Auth::guard('api')->refresh();
+
+            return response()->json([
+                'access_token' => $newToken,
+                'token_type' => 'Bearer',
+                'expires_in' => config('jwt.ttl') * 60
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Token refresh failed',
+                'error' => $e->getMessage()
+            ], 401);
+        }
+    }
+
+    // 🔹 GET USER INFO
+    public function me()
+    {
+        return response()->json(Auth::guard('api')->user());
     }
 }

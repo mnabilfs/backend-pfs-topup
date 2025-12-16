@@ -65,10 +65,12 @@ Route::get('/test', function () {
 // PROTECTED ROUTES (Authentication Required)
 // ============================================
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:api')->group(function () {
 
     Route::post('/user/profile/update', [ProfileController::class, 'update']);
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/refresh', [AuthController::class, 'refresh']); // TAMBAH INI
+    Route::get('/me', [AuthController::class, 'me']); // TAMBAH INI
 
     // USER ROUTES
     Route::middleware('role:user')->group(function () {
