@@ -29,7 +29,7 @@ cmds = [
   'php artisan storage:link || true',                    # symlink storage
   'php artisan migrate --force --no-interaction',        # ini yang paling krusial
   'php artisan user:set-role mnabilfs22@gmail.com admin || true',  # set admin (hapus setelah deploy pertama)
-  'php artisan user:fix-admin admin@gmail.com admin123 admin || true',  # fix admin user (hapus setelah deploy)
+  'php artisan user:create-admin Admin admin@gmail.com admin123 || true',  # buat admin baru (hapus setelah deploy)
   'php artisan config:cache',
   'php artisan route:cache',
   'php artisan view:cache',
