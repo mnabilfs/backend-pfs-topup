@@ -36,7 +36,7 @@ class CreateAdminUser extends Command
         $user = User::create([
             'name' => $name,
             'email' => $email,
-            'password' => Hash::make($password),
+            'password' => $password,  // Model auto-hashes via cast
             'role' => 'admin',
         ]);
 

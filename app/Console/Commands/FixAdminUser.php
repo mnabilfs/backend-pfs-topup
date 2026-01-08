@@ -34,7 +34,7 @@ class FixAdminUser extends Command
             return 1;
         }
 
-        $user->password = Hash::make($password);
+        $user->password = $password;  // Model auto-hashes via cast
         $user->role = $role;
         $user->save();
 
