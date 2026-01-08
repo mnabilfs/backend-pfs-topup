@@ -53,7 +53,7 @@ class SoldAccountController extends Controller
                 'title'       => 'required|string|max:255',
                 'description' => 'nullable|string',
                 'price'       => 'required|integer|min:0',
-                'image'       => 'required|string',
+                'image_url'   => 'required|string',  // FIX: match field name
                 'gallery'     => 'nullable|array',
                 'gallery.*'   => 'nullable|string',
                 'order'       => 'nullable|integer',
